@@ -2,17 +2,54 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useWrapper } from "../context/WrapperProvider";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { useCallback } from "react";
 
-function Shpopdets() {
+function Shopdets() {
   const { id } = useParams();
   const { product } = useWrapper();
   const navigate = useNavigate();
-  const data = product.find((item) => item.id === id);
+
+  const data = product.find((item) => item.id.toString() === id);
+
+  const handleAddToCart = useCallback(() => {
+    if (!data) return;
+
+    let cart = [];
+    const storedCart = localStorage.getItem("shoppingCart");
+
+    if (storedCart) {
+      try {
+        const parsed = JSON.parse(storedCart);
+        if (Array.isArray(parsed)) {
+          cart = parsed;
+        }
+      } catch (e) {
+        console.error("Failed to parse localStorage cart:", e);
+        cart = [];
+      }
+    }
+
+    const exists = cart.find((item) => item.id.toString() === id);
+    if (exists) {
+      toast.info("Item is already in the cart!");
+      return;
+    }
+
+    cart.push(data);
+    localStorage.setItem("shoppingCart", JSON.stringify(cart));
+    toast.success("Added to cart!");
+  }, [id, data]);
 
   if (!data) {
     return (
-      <div className="p-6">
-        <h1 className="text-xl text-red-500">Product not found</h1>
+      <div className="p-6 min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-2xl text-red-500 font-bold mb-4">Product Not Found</h1>
+        <button
+          onClick={() => navigate("/shop")}
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+        >
+          ← Back to Shop
+        </button>
       </div>
     );
   }
@@ -25,19 +62,18 @@ function Shpopdets() {
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.div
-        className="relative flex flex-col lg:flex-row gap-8 w-full max-w-6xl bg-black rounded-lg shadow-md p-6"
+        className="relative flex flex-col lg:flex-row gap-8 w-full max-w-6xl bg-black rounded-lg shadow-lg p-6"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        {/* Back to Shop Button in top-left */}
         <motion.button
           onClick={() => navigate("/shop")}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow hover:bg-gray-200 transition z-10"
+          className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-200 transition z-10"
         >
-          ← Back to Shop
+          ← Back
         </motion.button>
 
         <motion.div
@@ -73,19 +109,17 @@ function Shpopdets() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
             >
-              Buy
+              Buy Now
             </motion.button>
             <motion.button
-              onClick={() => {
-                toast.success("Product Added successfully");
-              }}
+              onClick={handleAddToCart}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-zinc-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+              className="bg-zinc-700 text-white px-6 py-2 rounded-md hover:bg-zinc-600 transition flex items-center gap-2"
             >
-              <i className="ri-shopping-bag-line p-2"></i>
+              <i className="ri-shopping-bag-line"></i>
               Add to Cart
             </motion.button>
           </div>
@@ -95,4 +129,4 @@ function Shpopdets() {
   );
 }
 
-export default Shpopdets;
+export default Shopdets;

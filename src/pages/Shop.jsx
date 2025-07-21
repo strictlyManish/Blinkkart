@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import SpotlightCard from "../components/SpotlightCard";
 function Shop() {
   const { product} = useWrapper();
-  const renderProduct = product.map((obj, idx) => (
+  const renderProduct = product.map((obj) => (
     <SpotlightCard
       className="custom-spotlight-card transition-shadow hover:shadow-xl"
       spotlightColor="rgba(0, 229, 255, 0.2)"
