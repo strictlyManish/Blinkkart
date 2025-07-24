@@ -126,7 +126,7 @@ function Nav() {
                 `${linkClass} ${isActive ? activeLinkClass : ""}`
               }
             >
-              Login
+              Login & Register
             </NavLink>
             <NavLink
               to="/cart"
